@@ -7,15 +7,16 @@
 ### Your API key doesn't belong in the file.
 
 **API Drop** keeps your real API keys encrypted and local. Your `.env` holds
-nothing but a harmless reference — the real key is injected only at runtime.
-Nothing on screen, nothing to revoke.
+nothing but a harmless **alias** — the real key is injected only at runtime.
+Paste it once, and it's locked away.
 
-<!-- TODO: replace DEIN-NAME with your GitHub username -->
+**An alias instead of a cost trap.** Nothing on screen, nothing to revoke.
+
 ![License](https://img.shields.io/badge/license-MIT-3f8f79)
 ![Platform](https://img.shields.io/badge/os-Windows%20%7C%20macOS%20%7C%20Linux-38545c)
 ![Local first](https://img.shields.io/badge/local--first-no%20cloud-38545c)
 ![GDPR](https://img.shields.io/badge/GDPR-ready-3f8f79)
-[![Stars](https://img.shields.io/github/stars/DEIN-NAME/api-drop?style=social)](https://github.com/DEIN-NAME/api-drop)
+[![Stars](https://img.shields.io/github/stars/Letaiwork4u/api-drop?style=social)](https://github.com/Letaiwork4u/api-drop)
 
 </div>
 
@@ -69,12 +70,26 @@ never shown on screen.
 
 ## Installation
 
-> TODO before first release: link finished builds (`.exe` / `.dmg` / Linux) under *Releases*.
+### Download (recommended)
+
+Grab the ready-to-run app for your system from the
+**[latest release](https://github.com/Letaiwork4u/api-drop/releases/latest)** —
+no Python required.
+
+| System | File |
+|---|---|
+| Windows | `ApiDrop.exe` |
+| macOS | `ApiDrop.dmg` |
+| Linux | `ApiDrop` (binary) |
+
+> **First launch:** the app isn't signed with a paid developer certificate, so your
+> OS warns once. **macOS:** System Settings → Privacy & Security → "Open Anyway".
+> **Windows:** "More info" → "Run anyway". The source is open — inspect it any time.
 
 ### From source
 
 ```bash
-git clone https://github.com/DEIN-NAME/api-drop.git
+git clone https://github.com/Letaiwork4u/api-drop.git
 cd api-drop
 pip install -r requirements.txt
 
@@ -123,7 +138,7 @@ Please report security issues **privately** to the address in the
 
 ## Roadmap
 
-- [ ] Prebuilt installers (`.exe` / `.dmg` / Linux) via GitHub Releases
+- [x] Prebuilt installers (`.exe` / `.dmg` / Linux) via GitHub Releases
 - [ ] Auto-detection straight from the clipboard
 - [ ] OS keychain integration (macOS Keychain, Windows Credential Manager)
 - [ ] A small SDK so `import apidrop` can replace `run --`

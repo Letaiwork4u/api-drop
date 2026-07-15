@@ -7,15 +7,16 @@
 ### Dein API-Key gehört nicht in die Datei.
 
 **API Drop** hält deine echten API-Keys verschlüsselt und lokal.
-In deiner `.env` steht nur eine harmlose Referenz – der echte Key wird
-erst zur Laufzeit eingesetzt. Nichts auf dem Bildschirm, nichts zu widerrufen.
+In deiner `.env` steht nur ein harmloser **Alias** – der echte Key wird
+erst zur Laufzeit eingesetzt. Einmal einfügen, und er ist weggeschlossen.
 
-<!-- TODO: DEIN-NAME durch deinen GitHub-Namen ersetzen -->
+**Ein Alias statt einer Kostenfalle.** Nichts auf dem Bildschirm, nichts zu widerrufen.
+
 ![License](https://img.shields.io/badge/license-MIT-3f8f79)
 ![Platform](https://img.shields.io/badge/os-Windows%20%7C%20macOS%20%7C%20Linux-38545c)
 ![Local first](https://img.shields.io/badge/local--first-no%20cloud-38545c)
 ![DSGVO](https://img.shields.io/badge/DSGVO-konform-3f8f79)
-[![Stars](https://img.shields.io/github/stars/DEIN-NAME/api-drop?style=social)](https://github.com/DEIN-NAME/api-drop)
+[![Stars](https://img.shields.io/github/stars/Letaiwork4u/api-drop?style=social)](https://github.com/Letaiwork4u/api-drop)
 
 </div>
 
@@ -69,12 +70,27 @@ Platte und nie auf dem Bildschirm.
 
 ## Installation
 
-> TODO vor dem ersten Release: fertige Builds (`.exe` / `.dmg` / Linux) unter *Releases* verlinken.
+### Download (empfohlen)
+
+Hol dir die fertige App für dein System aus dem
+**[neuesten Release](https://github.com/Letaiwork4u/api-drop/releases/latest)** –
+kein Python nötig.
+
+| System | Datei |
+|---|---|
+| Windows | `ApiDrop.exe` |
+| macOS | `ApiDrop.dmg` |
+| Linux | `ApiDrop` (Binary) |
+
+> **Beim ersten Start:** Die App ist nicht mit einem kostenpflichtigen
+> Entwickler-Zertifikat signiert, dein System warnt daher einmalig.
+> **macOS:** Systemeinstellungen → Datenschutz & Sicherheit → „Dennoch öffnen".
+> **Windows:** „Weitere Informationen" → „Trotzdem ausführen". Der Code ist offen.
 
 ### Aus dem Quellcode
 
 ```bash
-git clone https://github.com/DEIN-NAME/api-drop.git
+git clone https://github.com/Letaiwork4u/api-drop.git
 cd api-drop
 pip install -r requirements.txt
 
@@ -123,7 +139,7 @@ an die im [Impressum](https://api-drop.com/impressum.html) genannte Adresse.
 
 ## Roadmap
 
-- [ ] Fertige Installer (`.exe` / `.dmg` / Linux) über GitHub Releases
+- [x] Fertige Installer (`.exe` / `.dmg` / Linux) über GitHub Releases
 - [ ] Auto-Erkennung direkt aus der Zwischenablage
 - [ ] Integration mit OS-Keychains (macOS Keychain, Windows Credential Manager)
 - [ ] Kleines SDK, damit `import apidrop` das `run --` ersetzen kann
