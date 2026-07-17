@@ -38,6 +38,31 @@ def detect_provider(api_key: str) -> str:
     return "Unbekannt"
 
 
+# Übliche Umgebungsvariablen-Namen je Anbieter. Wird nur für das
+# Beispiel im Kopier-Dialog genutzt; der Nutzer kann jeden Namen wählen.
+PROVIDER_ENV_VARS = {
+    "Anthropic (Claude)": "ANTHROPIC_API_KEY",
+    "OpenAI": "OPENAI_API_KEY",
+    "Google (Gemini)": "GEMINI_API_KEY",
+    "Mistral": "MISTRAL_API_KEY",
+    "Cohere": "COHERE_API_KEY",
+    "HuggingFace": "HUGGINGFACE_API_KEY",
+    "GitHub": "GITHUB_TOKEN",
+    "Stripe": "STRIPE_API_KEY",
+    "AWS": "AWS_ACCESS_KEY_ID",
+    "Slack": "SLACK_TOKEN",
+}
+
+
+def env_var_for_provider(provider: str) -> str:
+    """
+    Liefert den üblichen Umgebungsvariablen-Namen für einen Anbieter,
+    z.B. "Anthropic (Claude)" -> "ANTHROPIC_API_KEY". Fällt auf einen
+    neutralen Namen zurück, wenn der Anbieter unbekannt ist.
+    """
+    return PROVIDER_ENV_VARS.get(provider, "YOUR_API_KEY")
+
+
 def suggest_label(api_key: str, existing_labels: list[str]) -> str:
     """
     Schlägt einen fortlaufenden Namen vor, z.B. "OpenAI API 1",

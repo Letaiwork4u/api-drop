@@ -21,7 +21,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QTimer
 from PyQt6.QtSvgWidgets import QSvgWidget
 
-from detector import detect_provider, suggest_label
+from detector import detect_provider, suggest_label, env_var_for_provider
 from resolver import ref_for_label
 import storage
 
@@ -81,7 +81,7 @@ TR = {
         "need_key_and_name": "API key and name are required.",
         "name_exists": "This name already exists. Please choose another.",
         "select_first": "Please select an entry in the list first.",
-        "ref_copied": "{ref}\n\ncopied. Paste it into your .env file, e.g.:\n\nOPENAI_API_KEY={ref}\n\nLater run your program with:  apidrop run -- <your command>\nThe real key is injected only at runtime \u2013 never visible in the file.",
+        "ref_copied": "{ref}\n\ncopied. Paste it into your .env file, e.g.:\n\n{env_var}={ref}\n\nLater run your program with:  apidrop run -- <your command>\nThe real key is injected only at runtime \u2013 never visible in the file.",
         "name_copied": "\"{label}\" copied.\n\nThe actual API key was NOT copied.",
         "rename_title": "Rename",
         "rename_prompt": "New name:",
@@ -129,7 +129,7 @@ TR = {
         "need_key_and_name": "API Key und Name werden ben\u00f6tigt.",
         "name_exists": "Dieser Name existiert bereits. Bitte einen anderen w\u00e4hlen.",
         "select_first": "Bitte zuerst einen Eintrag in der Liste ausw\u00e4hlen.",
-        "ref_copied": "{ref}\n\nwurde kopiert. F\u00fcge das in deine .env-Datei ein, z.B.:\n\nOPENAI_API_KEY={ref}\n\nStarte dein Programm sp\u00e4ter mit:  apidrop run -- <dein Befehl>\nDer echte Key wird erst zur Laufzeit eingesetzt \u2013 nie sichtbar in der Datei.",
+        "ref_copied": "{ref}\n\nwurde kopiert. F\u00fcge das in deine .env-Datei ein, z.B.:\n\n{env_var}={ref}\n\nStarte dein Programm sp\u00e4ter mit:  apidrop run -- <dein Befehl>\nDer echte Key wird erst zur Laufzeit eingesetzt \u2013 nie sichtbar in der Datei.",
         "name_copied": "\"{label}\" wurde kopiert.\n\nDer eigentliche API Key wurde NICHT kopiert.",
         "rename_title": "Umbenennen",
         "rename_prompt": "Neuer Name:",
@@ -489,9 +489,11 @@ class ApiDropWindow(QMainWindow):
         if row < 0:
             return
         label = self.table.item(row, 0).text()
+        provider = self.table.item(row, 1).text()
         reference = f"apidrop://{ref_for_label(label)}"
+        env_var = env_var_for_provider(provider)
         QApplication.clipboard().setText(reference)
-        self._info(self.t("ref_copied").format(ref=reference))
+        self._info(self.t("ref_copied").format(ref=reference, env_var=env_var))
 
     def _on_copy(self):
         row = self._selected_row()
