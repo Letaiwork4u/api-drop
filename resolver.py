@@ -38,10 +38,22 @@ def ref_for_label(label: str) -> str:
 
 
 def _unquote(value: str) -> str:
+    """Remove surrounding quotes and inline comments, like python-dotenv:
+    KEY=value  # comment   -> value
+    KEY="a # b"  # comment -> a # b   (inside quotes '#' is kept)
+    KEY=abc#def            -> abc#def (needs whitespace before '#')
+    """
     value = value.strip()
-    if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
-        return value[1:-1]
-    return value
+    if value[:1] in ("'", '"'):
+        quote = value[0]
+        end = value.find(quote, 1)
+        if end != -1:
+            return value[1:end]
+        return value
+    m = re.search(r"\s+#", value)
+    if m:
+        value = value[: m.start()]
+    return value.strip()
 
 
 def parse_env_file(text: str) -> list[tuple[str, str]]:
@@ -58,7 +70,6 @@ def parse_env_file(text: str) -> list[tuple[str, str]]:
         if not m:
             continue
         name, raw_value = m.group(1), m.group(2)
-        # Inline-Kommentar hinter unquoted Wert entfernen
         pairs.append((name, _unquote(raw_value)))
     return pairs
 
@@ -77,19 +88,37 @@ def build_ref_index(entries: list[dict]) -> dict[str, dict]:
     Baut ein Nachschlage-Register: Referenz-Kennung -> Eintrag.
     Nutzt sowohl den Slug des Labels als auch ein evtl. vorhandenes
     explizites 'ref'-Feld.
+    Explizite 'ref'-Felder haben Vorrang vor dem Slug des aktuellen Namens.
+    Zeigt eine Kennung auf zwei verschiedene Keys, wird sie als mehrdeutig
+    markiert (AMBIGUOUS) statt still einen der beiden zu nehmen.
     """
     index: dict[str, dict] = {}
-    for entry in entries:
-        label = entry.get("label", "")
-        index[ref_for_label(label)] = entry
-        explicit = entry.get("ref")
-        if explicit:
-            index[ref_for_label(explicit)] = entry
+    explicit_refs: set[str] = set()
+
+    def put(ref: str, entry: dict) -> None:
+        current = index.get(ref)
+        if current is None:
+            index[ref] = entry
+        elif current is not AMBIGUOUS and current is not entry and current.get("key") != entry.get("key"):
+            index[ref] = AMBIGUOUS
+
+    for entry in entries:                       # 1) stable references
+        if entry.get("ref"):
+            ref = ref_for_label(entry["ref"])
+            explicit_refs.add(ref)
+            put(ref, entry)
+    for entry in entries:                       # 2) slug of the current name
+        ref = ref_for_label(entry.get("label", ""))
+        if ref and ref not in explicit_refs:
+            put(ref, entry)
     return index
 
 
+AMBIGUOUS: dict = {"__ambiguous__": True}
+
+
 class UnresolvedReferenceError(Exception):
-    """Eine Referenz in der .env konnte im Vault nicht gefunden werden."""
+    """A reference in the .env could not be resolved from the vault."""
 
 
 def resolve_pairs(
@@ -114,8 +143,12 @@ def resolve_pairs(
             entry = index.get(ref)
             if entry is None:
                 raise UnresolvedReferenceError(
-                    f"Referenz '{REFERENCE_PREFIX}{ref}' für {name} "
-                    f"wurde im Vault nicht gefunden."
+                    f"reference '{REFERENCE_PREFIX}{ref}' for {name} was not found in the vault."
+                )
+            if entry is AMBIGUOUS:
+                raise UnresolvedReferenceError(
+                    f"reference '{REFERENCE_PREFIX}{ref}' for {name} matches more than one key "
+                    f"in the vault. Rename one of them in the API Drop app."
                 )
             resolved[name] = entry["key"]
             touched.append(name)

@@ -16,7 +16,9 @@ PROVIDER_PATTERNS = [
     ("OpenAI", re.compile(r"^sk-proj-")),
     ("OpenAI", re.compile(r"^sk-")),
     ("Google (Gemini)", re.compile(r"^AIza")),
-    ("Mistral", re.compile(r"^[a-zA-Z0-9]{32}$")),
+    # Mistral keys have no prefix: 32 chars mixing upper, lower and digits.
+    # Requiring all three avoids matching hex hashes / session ids.
+    ("Mistral", re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{32}$")),
     ("Cohere", re.compile(r"^co-")),
     ("HuggingFace", re.compile(r"^hf_")),
     ("GitHub", re.compile(r"^gh[pousr]_")),
@@ -28,14 +30,14 @@ PROVIDER_PATTERNS = [
 
 def detect_provider(api_key: str) -> str:
     """
-    Gibt den erkannten Anbieternamen zurück, oder "Unbekannt",
+    Gibt den erkannten Anbieternamen zurück, oder "Unknown",
     falls kein Muster passt.
     """
     key = api_key.strip()
     for name, pattern in PROVIDER_PATTERNS:
         if pattern.match(key):
             return name
-    return "Unbekannt"
+    return "Unknown"
 
 
 # Übliche Umgebungsvariablen-Namen je Anbieter. Wird nur für das

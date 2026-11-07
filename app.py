@@ -19,6 +19,7 @@ from PyQt6.QtWidgets import (
     QAbstractItemView, QSizePolicy, QGraphicsOpacityEffect,
 )
 from PyQt6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QTimer
+from PyQt6.QtGui import QIcon
 from PyQt6.QtSvgWidgets import QSvgWidget
 
 from detector import detect_provider, suggest_label, env_var_for_provider
@@ -40,6 +41,8 @@ def _asset_dir() -> Path:
 
 ASSET_DIR = _asset_dir()
 
+__version__ = "1.1.0"
+
 # ---- Brand colours (mint-blue family) -------------------------------
 NAVY = "#38545c"
 NAVY_LIGHT = "#45666f"
@@ -60,7 +63,7 @@ TR = {
         "key_placeholder": "Paste API key here \u2026",
         "show": "Show",
         "hide": "Hide",
-        "detect": "Detect & suggest name",
+        "detect": "Detect && suggest name",  # "&&" = literal "&" in Qt buttons
         "name_placeholder": "Name, e.g. OpenAI API 1 (freely editable)",
         "add_to_list": "Add to list",
         "list_section": "MY KEYS \u00b7 ONLY THE NAME IS VISIBLE",
@@ -71,7 +74,7 @@ TR = {
         "rename": "Rename",
         "remove": "Remove",
         "ref_tooltip": "Copies apidrop://name for your .env file",
-        "persist_check": "  Store keys encrypted locally  \u00b7  recommended: off when not needed",
+        "persist_check": "  Store keys encrypted locally  \u00b7  required for apidrop run",
         "delete_saved": "Delete stored keys",
         "local_note": "All data stays on this machine. No transfer to the internet.",
         "dlg_notice_title": "Security notice",
@@ -100,6 +103,18 @@ TR = {
         "delete_title": "Really delete?",
         "delete_confirm": "All locally stored keys will be permanently deleted. Continue?",
         "deleted_done": "All stored keys have been deleted.",
+        "unlock_prompt": "A vault with stored keys already exists.\nEnter its master password to add your keys to it:",
+        "wrong_pw_retry": "Wrong master password for the existing vault.\n\nTry again?",
+        "wrong_pw_load": "Wrong master password.\n\nTry again?",
+        "off_title": "Storage switched off",
+        "off_delete": "Also delete the stored keys from this computer now?\n\nYes = delete the vault permanently.\nNo = keep it (apidrop run keeps working, but changes in this session are no longer saved).",
+        "replace_title": "Replace existing vault?",
+        "replace_confirm": "Start a NEW vault instead?\n\nAll keys stored in the existing vault will be permanently lost.",
+        "ref_in_use": "This name would create the reference apidrop://{ref}, which another key already uses. Please choose a different name.",
+        "cli_button": "Terminal setup",
+        "cli_title": "Use apidrop in the terminal",
+        "cli_text": "Run this once in Terminal to install the apidrop command:\n\n{cmd}\n\n(The command has been copied to your clipboard.)\n\nAfterwards:  apidrop run -- <your command>\nThe vault must be stored locally (checkbox below).",
+        "cli_text_win": "Use apidrop.exe from the download (same release page) and put it in a folder on your PATH.\n\nThen:  apidrop run -- <your command>\nThe vault must be stored locally (checkbox below).",
     },
     "de": {
         "subtitle": "Aus einem langen Key wird ein kurzer Name.",
@@ -108,7 +123,7 @@ TR = {
         "key_placeholder": "API Key hier einf\u00fcgen \u2026",
         "show": "Anzeigen",
         "hide": "Verbergen",
-        "detect": "Erkennen & Namen vorschlagen",
+        "detect": "Erkennen && Namen vorschlagen",
         "name_placeholder": "Name, z.B. OpenAI API 1 (frei \u00e4nderbar)",
         "add_to_list": "Zur Liste",
         "list_section": "MEINE KEYS \u00b7 NUR DER NAME IST SICHTBAR",
@@ -119,7 +134,7 @@ TR = {
         "rename": "Umbenennen",
         "remove": "Entfernen",
         "ref_tooltip": "Kopiert apidrop://name f\u00fcr die .env-Datei",
-        "persist_check": "  Keys verschl\u00fcsselt lokal speichern  \u00b7  empfohlen: aus, wenn nicht n\u00f6tig",
+        "persist_check": "  Keys verschl\u00fcsselt lokal speichern  \u00b7  n\u00f6tig f\u00fcr apidrop run",
         "delete_saved": "Gespeicherte Keys l\u00f6schen",
         "local_note": "Alle Daten bleiben auf diesem Rechner. Keine \u00dcbertragung ins Internet.",
         "dlg_notice_title": "Sicherheitshinweis",
@@ -148,6 +163,18 @@ TR = {
         "delete_title": "Wirklich l\u00f6schen?",
         "delete_confirm": "Alle lokal gespeicherten Keys werden unwiderruflich gel\u00f6scht. Fortfahren?",
         "deleted_done": "Alle gespeicherten Keys wurden gel\u00f6scht.",
+        "unlock_prompt": "Es gibt bereits einen Vault mit gespeicherten Keys.\nGib sein Master-Passwort ein, um deine Keys hinzuzuf\u00fcgen:",
+        "wrong_pw_retry": "Falsches Master-Passwort f\u00fcr den vorhandenen Vault.\n\nNochmal versuchen?",
+        "wrong_pw_load": "Falsches Master-Passwort.\n\nNochmal versuchen?",
+        "off_title": "Speichern ausgeschaltet",
+        "off_delete": "Die gespeicherten Keys jetzt auch von diesem Rechner l\u00f6schen?\n\nJa = Vault unwiderruflich l\u00f6schen.\nNein = behalten (apidrop run funktioniert weiter, \u00c4nderungen dieser Sitzung werden aber nicht mehr gespeichert).",
+        "replace_title": "Vorhandenen Vault ersetzen?",
+        "replace_confirm": "Stattdessen einen NEUEN Vault anlegen?\n\nAlle Keys im vorhandenen Vault gehen unwiderruflich verloren.",
+        "ref_in_use": "Dieser Name w\u00fcrde die Referenz apidrop://{ref} erzeugen, die schon ein anderer Key nutzt. Bitte einen anderen Namen w\u00e4hlen.",
+        "cli_button": "Terminal einrichten",
+        "cli_title": "apidrop im Terminal nutzen",
+        "cli_text": "F\u00fchre diesen Befehl einmal im Terminal aus, um den Befehl apidrop zu installieren:\n\n{cmd}\n\n(Der Befehl wurde in die Zwischenablage kopiert.)\n\nDanach:  apidrop run -- <dein Befehl>\nDer Vault muss lokal gespeichert sein (H\u00e4kchen unten).",
+        "cli_text_win": "Nutze apidrop.exe aus dem Download (gleiche Release-Seite) und lege sie in einen Ordner im PATH.\n\nDanach:  apidrop run -- <dein Befehl>\nDer Vault muss lokal gespeichert sein (H\u00e4kchen unten).",
     },
 }
 
@@ -160,7 +187,7 @@ class ApiDropWindow(QMainWindow):
         self.persist_enabled = False
         self.lang = "en"
 
-        self.setWindowTitle("API Drop")
+        self.setWindowTitle(f"API Drop {__version__}")
         self.setMinimumSize(760, 720)
         self.resize(820, 780)
         self.setStyleSheet(f"background-color: {BG};")
@@ -199,6 +226,12 @@ class ApiDropWindow(QMainWindow):
         self._load_logo()
         top.addWidget(self.logo, alignment=Qt.AlignmentFlag.AlignLeft)
         top.addStretch(1)
+        self.cli_btn = QPushButton()
+        self.cli_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.cli_btn.setStyleSheet(self._ghost_button_style())
+        self.cli_btn.setMaximumHeight(30)
+        self.cli_btn.clicked.connect(self._on_cli_setup)
+        top.addWidget(self.cli_btn, alignment=Qt.AlignmentFlag.AlignTop)
         self.lang_toggle = QPushButton()
         self.lang_toggle.setCursor(Qt.CursorShape.PointingHandCursor)
         self.lang_toggle.setStyleSheet(self._ghost_button_style())
@@ -350,6 +383,7 @@ class ApiDropWindow(QMainWindow):
 
     def _retranslate(self):
         self.lang_toggle.setText(self.t("lang_button"))
+        self.cli_btn.setText(self.t("cli_button"))
         self.subtitle.setText(self.t("subtitle"))
         self.lbl_add_section.setText(self.t("add_section"))
         self.key_input.setPlaceholderText(self.t("key_placeholder"))
@@ -463,13 +497,38 @@ class ApiDropWindow(QMainWindow):
         if any(e["label"] == label for e in self.entries):
             self._warn(self.t("name_exists"))
             return
+        ref = ref_for_label(label)
+        if not ref or self._ref_taken(ref):
+            self._warn(self.t("ref_in_use").format(ref=ref))
+            return
         provider = detect_provider(key)
-        self.entries.append({"label": label, "provider": provider, "key": key})
+        # "ref" is fixed at creation: renaming must not break existing .env files
+        self.entries.append({"label": label, "provider": provider, "key": key, "ref": ref})
         self._append_row(label, provider)
         self.key_input.clear()
         self.name_input.clear()
         if self.persist_enabled:
             self._save_to_disk()
+
+    @staticmethod
+    def _ref_of(entry):
+        """Stable reference of an entry (older vaults have no 'ref' yet)."""
+        return entry.get("ref") or ref_for_label(entry["label"])
+
+    def _ref_taken(self, ref, ignore=None):
+        """True if `ref` is already reachable for another entry
+        (via its stable ref or the slug of its current label)."""
+        for e in self.entries:
+            if e is ignore:
+                continue
+            if ref in (self._ref_of(e), ref_for_label(e["label"])):
+                return True
+        return False
+
+    def _rebuild_table(self):
+        self.table.setRowCount(0)
+        for e in self.entries:
+            self._append_row(e["label"], e["provider"])
 
     def _append_row(self, label, provider):
         row = self.table.rowCount()
@@ -488,9 +547,9 @@ class ApiDropWindow(QMainWindow):
         row = self._selected_row()
         if row < 0:
             return
-        label = self.table.item(row, 0).text()
-        provider = self.table.item(row, 1).text()
-        reference = f"apidrop://{ref_for_label(label)}"
+        entry = self.entries[row]
+        provider = entry["provider"]
+        reference = f"apidrop://{self._ref_of(entry)}"
         env_var = env_var_for_provider(provider)
         QApplication.clipboard().setText(reference)
         self._info(self.t("ref_copied").format(ref=reference, env_var=env_var))
@@ -515,10 +574,14 @@ class ApiDropWindow(QMainWindow):
         if any(e["label"] == new for e in self.entries):
             self._warn(self.t("name_in_use"))
             return
-        for e in self.entries:
-            if e["label"] == old:
-                e["label"] = new
-                break
+        entry = self.entries[row]
+        new_ref = ref_for_label(new)
+        if not new_ref or self._ref_taken(new_ref, ignore=entry):
+            self._warn(self.t("ref_in_use").format(ref=new_ref))
+            return
+        # Pin the reference before renaming, so apidrop://<old-name> keeps working
+        entry["ref"] = self._ref_of(entry)
+        entry["label"] = new
         self.table.item(row, 0).setText(new)
         if self.persist_enabled:
             self._save_to_disk()
@@ -531,7 +594,7 @@ class ApiDropWindow(QMainWindow):
         confirm = QMessageBox.question(self, self.t("remove_title"), self.t("remove_confirm").format(label=label))
         if confirm != QMessageBox.StandardButton.Yes:
             return
-        self.entries = [e for e in self.entries if e["label"] != label]
+        self.entries.pop(row)
         self.table.removeRow(row)
         if self.persist_enabled:
             self._save_to_disk()
@@ -554,19 +617,80 @@ class ApiDropWindow(QMainWindow):
                 self.persist_enabled = True
                 self._save_to_disk()
                 return
-            QMessageBox.information(self, self.t("dlg_notice_title"), self.t("persist_notice"))
-            pw = self._ask_password(confirm=True)
-            if not pw:
-                self.persist_check.blockSignals(True)
-                self.persist_check.setChecked(False)
-                self.persist_check.blockSignals(False)
-                return
-            self._master_password = pw
+            if storage.vault_exists():
+                # Never overwrite a vault we haven't opened: unlock it and merge.
+                if not self._unlock_and_merge_existing_vault():
+                    self._uncheck_persist()
+                    return
+            else:
+                QMessageBox.information(self, self.t("dlg_notice_title"), self.t("persist_notice"))
+                pw = self._ask_password(confirm=True)
+                if not pw:
+                    self._uncheck_persist()
+                    return
+                self._master_password = pw
             self.persist_enabled = True
             self._save_to_disk()
         else:
             self.persist_enabled = False
             self._master_password = None
+            if storage.vault_exists():
+                answer = QMessageBox.question(self, self.t("off_title"), self.t("off_delete"))
+                if answer == QMessageBox.StandardButton.Yes:
+                    storage.delete_vault()
+                    self._info(self.t("deleted_done"))
+
+    def _uncheck_persist(self):
+        self.persist_check.blockSignals(True)
+        self.persist_check.setChecked(False)
+        self.persist_check.blockSignals(False)
+        self.persist_enabled = False
+
+    def _unlock_and_merge_existing_vault(self) -> bool:
+        """Ask for the existing vault's password, load it and merge the keys
+        of this session into it. Returns False if the user cancels.
+        Replacing the vault is only possible after an explicit confirmation."""
+        while True:
+            pw, ok = QInputDialog.getText(self, self.t("pw_title"), self.t("unlock_prompt"),
+                                          echo=QLineEdit.EchoMode.Password)
+            if not ok or not pw:
+                return False
+            try:
+                stored = storage.load_entries(pw)
+            except ValueError:
+                again = QMessageBox.question(self, self.t("dlg_hint_title"), self.t("wrong_pw_retry"))
+                if again == QMessageBox.StandardButton.Yes:
+                    continue
+                replace = QMessageBox.question(self, self.t("replace_title"), self.t("replace_confirm"))
+                if replace != QMessageBox.StandardButton.Yes:
+                    return False
+                new_pw = self._ask_password(confirm=True)
+                if not new_pw:
+                    return False
+                self._master_password = new_pw
+                return True
+            self._merge_stored_entries(stored)
+            self._master_password = pw
+            return True
+
+    def _merge_stored_entries(self, stored):
+        """Stored keys come first and keep their references (they may already be
+        used in .env files). Session keys whose name/reference clashes are renamed."""
+        merged = []
+        for e in stored:
+            e.setdefault("ref", ref_for_label(e["label"]))
+            merged.append(e)
+        current = self.entries
+        self.entries = merged
+        for e in current:
+            if any(s["key"] == e["key"] for s in merged):
+                continue  # same key already stored
+            label, n = e["label"], 2
+            while any(x["label"] == label for x in self.entries) or self._ref_taken(ref_for_label(label)):
+                label, n = f"{e['label']} ({n})", n + 1
+            e["label"], e["ref"] = label, ref_for_label(label)
+            self.entries.append(e)
+        self._rebuild_table()
 
     def _save_to_disk(self):
         if not self._master_password:
@@ -588,18 +712,22 @@ class ApiDropWindow(QMainWindow):
             self._load_from_disk()
 
     def _load_from_disk(self):
-        pw = self._ask_password()
-        if not pw:
-            return
-        try:
-            entries = storage.load_entries(pw)
-        except ValueError as exc:
-            self._warn(str(exc))
-            return
+        while True:
+            pw = self._ask_password()
+            if not pw:
+                return
+            try:
+                entries = storage.load_entries(pw)
+                break
+            except ValueError:
+                again = QMessageBox.question(self, self.t("dlg_hint_title"), self.t("wrong_pw_load"))
+                if again != QMessageBox.StandardButton.Yes:
+                    return
         self._master_password = pw
-        self.entries = entries
         for e in entries:
-            self._append_row(e["label"], e["provider"])
+            e.setdefault("ref", ref_for_label(e["label"]))
+        self.entries = entries
+        self._rebuild_table()
         self.persist_enabled = True
         # Häkchen setzen, ohne _on_toggle_persist erneut auszulösen
         # (sonst würde nochmal nach dem Passwort gefragt).
@@ -617,6 +745,19 @@ class ApiDropWindow(QMainWindow):
         storage.delete_vault()
         self._info(self.t("deleted_done"))
 
+    def _on_cli_setup(self):
+        if sys.platform.startswith("win"):
+            self._info(self.t("cli_text_win"))
+            return
+        if getattr(sys, "frozen", False):
+            target = sys.executable           # .../ApiDrop.app/Contents/MacOS/ApiDrop
+        else:
+            target = str(Path(__file__).resolve().parent / "apidrop_cli.py")
+        # /usr/local/bin does not exist on every fresh Apple-silicon Mac
+        cmd = f'sudo mkdir -p /usr/local/bin && sudo ln -sf "{target}" /usr/local/bin/apidrop'
+        QApplication.clipboard().setText(cmd)
+        QMessageBox.information(self, self.t("cli_title"), self.t("cli_text").format(cmd=cmd))
+
     def _warn(self, msg):
         QMessageBox.warning(self, self.t("dlg_hint_title"), msg)
 
@@ -624,9 +765,28 @@ class ApiDropWindow(QMainWindow):
         QMessageBox.information(self, self.t("dlg_info_title"), msg)
 
 
+CLI_COMMANDS = {"run", "list", "-h", "--help"}
+
+
+def wants_cli(argv) -> bool:
+    """The packaged app doubles as the `apidrop` command:
+    `ApiDrop run -- …`, `ApiDrop list`, or any call through a link named `apidrop`."""
+    invoked_as = Path(argv[0]).name
+    if invoked_as in ("apidrop", "apidrop.exe"):
+        return True
+    return len(argv) > 1 and argv[1] in CLI_COMMANDS
+
+
 def main():
+    if wants_cli(sys.argv):
+        import apidrop_cli
+        raise SystemExit(apidrop_cli.main(sys.argv[1:]))
     app = QApplication(sys.argv)
     app.setApplicationName("API Drop")
+    icon_path = ASSET_DIR / "assets" / "icons" / "apidrop_512.png"
+    if icon_path.exists():
+        # Window / taskbar icon on Windows and Linux (macOS uses the .icns of the bundle)
+        app.setWindowIcon(QIcon(str(icon_path)))
     app.setStyleSheet(
         "QMessageBox, QInputDialog { background-color: #ffffff; }"
         "QMessageBox QLabel, QInputDialog QLabel { color: #22343a; }"

@@ -78,9 +78,20 @@ no Python required.
 
 | System | File |
 |---|---|
-| Windows | `ApiDrop.exe` |
+| Windows | `ApiDrop.exe` (app) + `apidrop.exe` (terminal command) |
 | macOS | `ApiDrop.dmg` |
 | Linux | `ApiDrop` (binary) |
+
+### The `apidrop` terminal command
+
+The app doubles as the command line tool:
+
+- **macOS:** click **Terminal setup** in the app — it copies a one-time command that links
+  `apidrop` into `/usr/local/bin`:
+  `sudo mkdir -p /usr/local/bin && sudo ln -sf "/Applications/ApiDrop.app/Contents/MacOS/ApiDrop" /usr/local/bin/apidrop`
+- **Linux:** `sudo ln -sf /path/to/ApiDrop /usr/local/bin/apidrop` (or call `./ApiDrop run -- …` directly).
+- **Windows:** put `apidrop.exe` into a folder on your `PATH`.
+- **From source:** `python apidrop_cli.py run -- …`
 
 > **First launch:** the app isn't signed with a paid developer certificate, so your
 > OS warns once. **macOS:** System Settings → Privacy & Security → "Open Anyway".

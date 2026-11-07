@@ -19,7 +19,9 @@ jobs:
         include:
           - os: windows-latest
             artifact_name: ApiDrop-windows
-            artifact_path: dist/ApiDrop.exe
+            artifact_path: |
+              dist/ApiDrop.exe
+              dist/cli/apidrop.exe
           - os: macos-latest
             artifact_name: ApiDrop-macos
             artifact_path: dist/ApiDrop.dmg
@@ -57,7 +59,18 @@ jobs:
           pyinstaller --onefile --windowed --name ApiDrop
           --add-data "logo_full_mint.svg;."
           --add-data "logo_icon_mint.svg;."
+          --add-data "assets/icons/apidrop_512.png;assets/icons"
+          --icon "assets/icons/ApiDrop.ico"
           app.py
+
+      # Eigener Ordner: Windows unterscheidet ApiDrop.exe / apidrop.exe nicht
+      - name: Kommandozeilen-Tool bauen (Windows, apidrop.exe)
+        if: runner.os == 'Windows'
+        run: >
+          pyinstaller --onefile --console --name apidrop
+          --distpath dist/cli --workpath build/cli --specpath build/cli
+          --icon "${{ github.workspace }}/assets/icons/ApiDrop.ico"
+          apidrop_cli.py
 
       - name: Bauen (Linux)
         if: runner.os == 'Linux'
@@ -65,6 +78,7 @@ jobs:
           pyinstaller --onefile --windowed --name ApiDrop
           --add-data "logo_full_mint.svg:."
           --add-data "logo_icon_mint.svg:."
+          --add-data "assets/icons/apidrop_512.png:assets/icons"
           app.py
 
       - name: Bauen (macOS) + DMG erzeugen
@@ -73,7 +87,16 @@ jobs:
           pyinstaller --windowed --name ApiDrop \
             --add-data "logo_full_mint.svg:." \
             --add-data "logo_icon_mint.svg:." \
+            --add-data "assets/icons/apidrop_512.png:assets/icons" \
+            --icon "assets/icons/ApiDrop.icns" \
+            --osx-bundle-identifier "com.letaiwork4u.apidrop" \
             app.py
+          # Version aus app.py ins Bundle schreiben, danach ad-hoc neu signieren
+          # (eine geänderte Info.plist macht die Signatur sonst ungültig).
+          VERSION=$(python -c "import re;print(re.search(r'__version__ = \"(.+?)\"', open('app.py').read()).group(1))")
+          plutil -replace CFBundleShortVersionString -string "$VERSION" dist/ApiDrop.app/Contents/Info.plist
+          plutil -replace CFBundleVersion -string "$VERSION" dist/ApiDrop.app/Contents/Info.plist
+          codesign --force --deep --sign - dist/ApiDrop.app
           mkdir -p dist/dmg
           cp -R "dist/ApiDrop.app" dist/dmg/
           ln -s /Applications dist/dmg/Applications
