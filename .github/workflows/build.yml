@@ -81,7 +81,7 @@ jobs:
           --add-data "assets/icons/apidrop_512.png:assets/icons"
           app.py
 
-      - name: Bauen (macOS) + DMG erzeugen
+      - name: Bauen (macOS)
         if: runner.os == 'macOS'
         run: |
           pyinstaller --windowed --name ApiDrop \
@@ -91,19 +91,43 @@ jobs:
             --icon "assets/icons/ApiDrop.icns" \
             --osx-bundle-identifier "com.letaiwork4u.apidrop" \
             app.py
-          # Version aus app.py ins Bundle schreiben, danach ad-hoc neu signieren
-          # (eine geänderte Info.plist macht die Signatur sonst ungültig).
+          # Version aus app.py ins Bundle schreiben (vor dem Signieren)
           VERSION=$(python -c "import re;print(re.search(r'__version__ = \"(.+?)\"', open('app.py').read()).group(1))")
           plutil -replace CFBundleShortVersionString -string "$VERSION" dist/ApiDrop.app/Contents/Info.plist
           plutil -replace CFBundleVersion -string "$VERSION" dist/ApiDrop.app/Contents/Info.plist
-          codesign --force --deep --sign - dist/ApiDrop.app
-          mkdir -p dist/dmg
-          cp -R "dist/ApiDrop.app" dist/dmg/
-          ln -s /Applications dist/dmg/Applications
-          hdiutil create -volname "API Drop" \
-            -srcfolder dist/dmg \
-            -ov -format UDZO \
-            dist/ApiDrop.dmg
+
+      # Nur wenn die Secrets hinterlegt sind: Developer-ID-Zertifikat in einen
+      # temporären Schlüsselbund importieren. Ohne Secrets bleibt es bei ad-hoc.
+      - name: Developer-ID-Zertifikat importieren (macOS)
+        if: runner.os == 'macOS'
+        env:
+          MACOS_CERT_P12_BASE64: ${{ secrets.MACOS_CERT_P12_BASE64 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          if [ -z "$MACOS_CERT_P12_BASE64" ]; then
+            echo "Keine Signier-Secrets hinterlegt - ad-hoc-Build."
+            exit 0
+          fi
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          KEYCHAIN_PW="$(openssl rand -base64 24)"
+          echo "$MACOS_CERT_P12_BASE64" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -P "$MACOS_CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PW" "$KEYCHAIN" >/dev/null
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          rm -f "$RUNNER_TEMP/cert.p12"
+          security find-identity -v -p codesigning "$KEYCHAIN"
+
+      - name: Signieren, DMG, Notarisieren (macOS)
+        if: runner.os == 'macOS'
+        env:
+          SIGN_IDENTITY: ${{ secrets.MACOS_SIGN_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: bash tools/macos_sign.sh dist/ApiDrop.app dist/ApiDrop.dmg
 
       - name: Artefakt hochladen
         uses: actions/upload-artifact@v4
