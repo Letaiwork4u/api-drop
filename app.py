@@ -114,7 +114,7 @@ TR = {
         "cli_button": "Terminal setup",
         "cli_title": "Use apidrop in the terminal",
         "cli_text": "Run this once in Terminal to install the apidrop command:\n\n{cmd}\n\n(The command has been copied to your clipboard.)\n\nAfterwards:  apidrop run -- <your command>\nThe vault must be stored locally (checkbox below).",
-        "cli_text_win": "Use apidrop.exe from the download (same release page) and put it in a folder on your PATH.\n\nThen:  apidrop run -- <your command>\nThe vault must be stored locally (checkbox below).",
+        "cli_text_win": "Download apidrop-cli-windows.zip (same release page), unzip it and put apidrop.exe in a folder on your PATH.\n\nThen:  apidrop run -- <your command>\nThe vault must be stored locally (checkbox below).",
     },
     "de": {
         "subtitle": "Aus einem langen Key wird ein kurzer Name.",
@@ -174,7 +174,7 @@ TR = {
         "cli_button": "Terminal einrichten",
         "cli_title": "apidrop im Terminal nutzen",
         "cli_text": "F\u00fchre diesen Befehl einmal im Terminal aus, um den Befehl apidrop zu installieren:\n\n{cmd}\n\n(Der Befehl wurde in die Zwischenablage kopiert.)\n\nDanach:  apidrop run -- <dein Befehl>\nDer Vault muss lokal gespeichert sein (H\u00e4kchen unten).",
-        "cli_text_win": "Nutze apidrop.exe aus dem Download (gleiche Release-Seite) und lege sie in einen Ordner im PATH.\n\nDanach:  apidrop run -- <dein Befehl>\nDer Vault muss lokal gespeichert sein (H\u00e4kchen unten).",
+        "cli_text_win": "Lade apidrop-cli-windows.zip (gleiche Release-Seite), entpacke sie und lege apidrop.exe in einen Ordner im PATH.\n\nDanach:  apidrop run -- <dein Befehl>\nDer Vault muss lokal gespeichert sein (H\u00e4kchen unten).",
     },
 }
 

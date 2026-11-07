@@ -123,8 +123,25 @@ jobs:
         with:
           path: artifacts
 
+      - name: Dateien sammeln + SHA256-Prüfsummen
+        run: |
+          mkdir -p release
+          cp artifacts/ApiDrop-windows/ApiDrop.exe release/
+          # apidrop.exe im ZIP: Windows/macOS unterscheiden ApiDrop.exe und apidrop.exe nicht
+          (cd artifacts/ApiDrop-windows/cli && zip -q ../../../release/apidrop-cli-windows.zip apidrop.exe)
+          cp artifacts/ApiDrop-macos/ApiDrop.dmg release/
+          cp artifacts/ApiDrop-linux/ApiDrop release/
+          cd release && sha256sum ApiDrop.exe apidrop-cli-windows.zip ApiDrop.dmg ApiDrop > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
       - name: Release erstellen
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/**/*
+          files: |
+            release/ApiDrop.exe
+            release/apidrop-cli-windows.zip
+            release/ApiDrop.dmg
+            release/ApiDrop
+            release/SHA256SUMS.txt
+          fail_on_unmatched_files: true
           generate_release_notes: true
