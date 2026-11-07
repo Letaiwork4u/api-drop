@@ -1,5 +1,22 @@
 # macOS: Signieren & Notarisieren einrichten
 
+## Einfachster Weg: lokal auf dem eigenen Mac
+
+Voraussetzungen: „Developer ID Application“-Zertifikat im Schlüsselbund
+(`security find-identity -v -p codesigning` zeigt es) und einmalig gespeicherte Notarisierungs-Daten:
+
+```bash
+xcrun notarytool store-credentials "apidrop-notary"   # fragt Apple-ID, App-Passwort, Team-ID
+```
+
+Danach signiert, notarisiert und staplet ein einziger Befehl die gebaute App:
+
+```bash
+SIGN_IDENTITY=auto NOTARY_PROFILE=apidrop-notary tools/macos_sign.sh dist/ApiDrop.app dist/ApiDrop.dmg
+```
+
+Der Weg über GitHub-Secrets (unten) ist nur nötig, wenn GitHub Actions selbst signieren soll.
+
 Der Build-Workflow ist vorbereitet. **Solange keine Secrets hinterlegt sind, baut er wie bisher**
 (ad-hoc-signiert, Nutzer müssen einmal „Dennoch öffnen“). Sobald die sechs Secrets unten
 gesetzt sind, wird die App automatisch mit deiner Developer ID signiert, notarisiert und
