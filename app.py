@@ -41,7 +41,7 @@ def _asset_dir() -> Path:
 
 ASSET_DIR = _asset_dir()
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 # ---- Brand colours (mint-blue family) -------------------------------
 NAVY = "#38545c"
